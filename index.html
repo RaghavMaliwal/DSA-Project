@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Event Scheduler</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="main">
+      <!-- Event container for dynamically added events -->
+      <div id="eventsContainer"></div>
+      <!-- Button to add new events -->
+      <button id="addEventBtn">Add Event</button>
+    </div>
+
+    <!-- Event displayer section -->
+    <div class="eventDisplayer" style="visibility: hidden">
+      <div class="closeButton">
+        <!-- Close Button SVG -->
+        <svg width="28" height="30" xmlns="http://www.w3.org/2000/svg">
+          <path
+            d="m11.596.782 2.122 2.122L9.12 7.499l4.597 4.597-2.122 2.122L7 9.62l-4.595 4.597-2.122-2.122L4.878 7.5.282 2.904 2.404.782l4.595 4.596L11.596.782Z"
+            fill="red"
+            fill-rule="evenodd"
+            transform="scale(2)"
+          />
+        </svg>
+      </div>
+      <p class="name">
+        Event Name: <span id="displayNameText"></span
+        ><input type="text" id="editNameInput" style="display: none" />
+      </p>
+      <p class="start">
+        Start Time: <span id="stDetailText"></span
+        ><input type="time" id="editStartInput" style="display: none" />
+      </p>
+      <p class="end">
+        End Time: <span id="etDetailText"></span
+        ><input type="time" id="editEndInput" style="display: none" />
+      </p>
+      <p class="location">
+        Venue: <span id="vDetailText"></span
+        ><input type="text" id="editVenueInput" style="display: none" />
+      </p>
+      <p class="detail">
+        Details: <span id="descText"></span
+        ><textarea id="editDescInput" style="display: none"></textarea>
+      </p>
+      <button id="editBtn">Edit Details</button>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
