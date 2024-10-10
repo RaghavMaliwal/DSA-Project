@@ -33,7 +33,14 @@ function createEventElement(
   desc = "Description"
 ) {
   let newEvent = document.createElement("div");
+  let mainEvent = document.createElement("div");
+  let deleteEvent = document.createElement("div");
+  deleteEvent.classList.add("deleteEvent");
+  mainEvent.classList.add("mainEvent");
   newEvent.classList.add("event");
+
+  mainEvent.appendChild(newEvent);
+  mainEvent.appendChild(deleteEvent);
 
   // Set event details
   newEvent.innerHTML = `
@@ -41,11 +48,24 @@ function createEventElement(
     <div class="schedule">
       <p class="startTime">${startTime}</p>
       <p>-</p>
-      <p class="endTime">${endTime}</p>
+      <p class="endTime"> ${endTime}</p>
     </div>
     <p class="venue">${venue}</p>
     <p class="desc">${desc}</p>
+    `;
+
+  deleteEvent.innerHTML = `
+  <svg id="delete" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 14 16">
+    <defs>
+        <path d="M0 2.625V1.75C0 1.334.334 1 .75 1h3.5l.294-.584A.741.741 0 0 1 5.213 0h3.571a.75.75 0 0 1 .672.416L9.75 1h3.5c.416 0 .75.334.75.75v.875a.376.376 0 0 1-.375.375H.375A.376.376 0 0 1 0 2.625Zm13 1.75V14.5a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 1 14.5V4.375C1 4.169 1.169 4 1.375 4h11.25c.206 0 .375.169.375.375ZM4.5 6.5c0-.275-.225-.5-.5-.5s-.5.225-.5.5v7c0 .275.225.5.5.5s.5-.225.5-.5v-7Zm3 0c0-.275-.225-.5-.5-.5s-.5.225-.5.5v7c0 .275.225.5.5.5s.5-.225.5-.5v-7Zm3 0c0-.275-.225-.5-.5-.5s-.5.225-.5.5v7c0 .275.225.5.5.5s.5-.225.5-.5v-7Z" id="a"/>
+    </defs>
+    <use fill="#e90404" fill-rule="nonzero" xlink:href="#a"/>
+  </svg>
   `;
+
+  deleteEvent.addEventListener("click", () => {
+    deleteEvent.parentNode.remove();
+  });
 
   // Add click event listener to the new event
   newEvent.addEventListener("click", () => {
@@ -53,7 +73,7 @@ function createEventElement(
   });
 
   // Append the new event to the container
-  eventsContainer.appendChild(newEvent);
+  eventsContainer.appendChild(mainEvent);
 }
 
 // Close button functionality
@@ -128,6 +148,9 @@ function handleEventClick(eventElement) {
 
   // Make the event displayer visible
   eventDisplayer.style.visibility = "visible";
+  eventDisplayer.style.animationName = "moveLeft";
+  eventDisplayer.style.animationDuration = "0.3s";
+
   isEditMode = false;
   updateViewMode();
 }

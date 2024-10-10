@@ -5,8 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Event Scheduler</title>
     <link rel="stylesheet" href="style.css" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Poppins&display=swap"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+      integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
   </head>
   <body>
+    <header>
+      <i class="fa-solid fa-calendar-days fa-2xl" style="color: #e90404"></i>
+      <h1>Dynamic Event Scheduler</h1>
+    </header>
+
+    <div class="searchSection">
+      <i class="fa-solid fa-magnifying-glass fa-xl" style="color: #e90404"></i>
+      <input type="text" id="searchInput" placeholder="Search a Event..." />
+      <!-- <button id="shareBtn">Share</button> -->
+    </div>
     <div class="main">
       <!-- Event container for dynamically added events -->
       <div id="eventsContainer"></div>
@@ -21,15 +42,15 @@
         <svg width="28" height="30" xmlns="http://www.w3.org/2000/svg">
           <path
             d="m11.596.782 2.122 2.122L9.12 7.499l4.597 4.597-2.122 2.122L7 9.62l-4.595 4.597-2.122-2.122L4.878 7.5.282 2.904 2.404.782l4.595 4.596L11.596.782Z"
-            fill="red"
+            fill="#e90404"
             fill-rule="evenodd"
             transform="scale(2)"
           />
         </svg>
       </div>
       <p class="name">
-        Event Name: <span id="displayNameText"></span
-        ><input type="text" id="editNameInput" style="display: none" />
+        <span id="displayNameText"></span>
+        <input type="text" id="editNameInput" style="display: none" />
       </p>
       <p class="start">
         Start Time: <span id="stDetailText"></span

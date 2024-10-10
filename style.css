@@ -2,6 +2,55 @@
   margin: 0%;
   padding: 0%;
   box-sizing: border-box;
+  font-family: "Poppins";
+}
+
+header {
+  display: flex;
+  flex-direction: row;
+}
+
+header h1 {
+  margin-top: 0.5rem;
+  font-size: 2.5rem;
+}
+i {
+  height: 2rem;
+  width: 2rem;
+  margin-top: 2.2rem;
+  margin-left: 2.5rem;
+  margin-right: 1rem;
+}
+
+#searchInput {
+  background-color: white;
+  border: solid black 3px;
+  border-radius: 9999px;
+  font-size: 1.5rem;
+  margin-right: 1rem;
+  padding-left: 10px;
+}
+.fa-magnifying-glass {
+  margin-top: 2.2rem;
+  margin-left: 2.5rem;
+  margin-right: 0.5rem;
+}
+#shareBtn {
+  height: 2.5rem;
+  width: 6rem;
+  font-size: 1rem;
+  border-radius: 5px;
+  border: none;
+  background-color: #e90404;
+  font-weight: 400;
+  margin-right: 1rem;
+}
+
+.searchSection {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
 }
 .main {
   height: 100vh;
@@ -11,18 +60,36 @@
   align-items: center;
   justify-content: center;
 }
+.mainEvent {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
 
+.deleteEvent {
+  height: 2.5rem;
+  width: 2.5rem;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
+#delete {
+  height: 1.5rem;
+  width: 1.5rem;
+}
 .event {
-  height: 3rem;
+  height: 2.5rem;
   width: 35rem;
-  background-color: aqua;
+  border-bottom: black solid;
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
   padding-left: 10px;
   padding-right: 10px;
-  margin-bottom: 1rem;
 }
 
 .event:hover {
@@ -33,6 +100,7 @@
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
+  color: #e90404;
 }
 
 p.desc,
@@ -52,19 +120,32 @@ p.venue {
   margin-top: 4rem;
 }
 
+button:hover {
+  cursor: pointer;
+}
 /*event displayer*/
+
+@keyframes moveLeft {
+  from {
+    right: -50%;
+  }
+  to {
+    right: 0%;
+  }
+}
 
 .eventDisplayer {
   height: 100%;
-  width: 50%;
+  width: 30%;
   z-index: 2;
   position: absolute;
-  left: 50%;
+  right: 0%;
   top: 0%;
-  background-color: peachpuff;
+  border: 5px solid #e90404;
   padding: 2rem;
   font-size: 1.5rem;
   visibility: hidden;
+  background-color: peachpuff;
 }
 .eventDisplayer p {
   margin-bottom: 0.5rem;
@@ -72,6 +153,7 @@ p.venue {
 .name {
   font-size: 3rem;
   text-align: center;
+  font-weight: 800;
 }
 
 .closeButton svg path {
@@ -79,6 +161,9 @@ p.venue {
   width: 2rem;
 }
 
+.closeButton:hover {
+  cursor: pointer;
+}
 #editBtn {
   height: 3rem;
   width: 10rem;
@@ -92,6 +177,19 @@ p.venue {
 
 input {
   border: none;
+  background-color: peachpuff;
+  font-size: 1.5rem;
+}
+
+#editNameInput {
+  font-size: 3rem;
+  font-weight: 800;
+  width: 85%;
+  text-align: center;
+}
+
+#editDescInput {
+  width: 100%;
   background-color: peachpuff;
   font-size: 1.5rem;
 }
