@@ -214,7 +214,6 @@ editBtn.addEventListener("click", () => {
       displayDescText.textContent;
   }
 
-  // Toggle the mode
   isEditMode = !isEditMode;
   updateViewMode();
 });
@@ -225,5 +224,5 @@ createEventElement(
   "00:00",
   "00:00",
   "Loacation",
-  "Event Description"
+  "Event Description!"
 );
