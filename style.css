@@ -1,19 +1,24 @@
 * {
-  margin: 0%;
-  padding: 0%;
+  margin: 0;
+  padding: 0;
   box-sizing: border-box;
-  font-family: "Poppins";
+  font-family: "Poppins", sans-serif;
 }
 
 header {
   display: flex;
-  flex-direction: row;
+  align-items: center;
+  padding: 1rem;
+  background-color: #f5f5f5;
+  border-bottom: solid 2px #e90404;
 }
 
 header h1 {
   margin-top: 0.5rem;
-  font-size: 2.5rem;
+  font-size: 2.2rem;
+  color: #333;
 }
+
 i {
   height: 2rem;
   width: 2rem;
@@ -23,18 +28,27 @@ i {
 }
 
 #searchInput {
-  background-color: white;
-  border: solid black 3px;
-  border-radius: 9999px;
-  font-size: 1.5rem;
-  margin-right: 1rem;
-  padding-left: 10px;
+  background-color: #ffffff;
+  border: 2px solid #333;
+  border-radius: 20px;
+  font-size: 1.25rem;
+  padding: 0.5rem 1rem;
+  margin: 1rem 0;
+  width: 300px;
 }
+
+.searchSection {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+}
+
 .fa-magnifying-glass {
   margin-top: 2.2rem;
   margin-left: 2.5rem;
   margin-right: 0.5rem;
 }
+
 #shareBtn {
   height: 2.5rem;
   width: 6rem;
@@ -46,25 +60,50 @@ i {
   margin-right: 1rem;
 }
 
-.searchSection {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-}
 .main {
   height: 100vh;
   width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  padding-top: 2rem;
 }
-.mainEvent {
+
+#eventsContainer {
+  width: 90%;
+}
+
+.event {
+  height: auto;
+  width: 90%;
+  max-width: 500px;
+  padding: 1rem;
+  margin: 0.5rem 0;
+  background-color: #fff;
+  border-radius: 8px;
+  border: solid 1px #ddd;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: box-shadow 0.3s ease;
+}
+
+.event:hover {
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+}
+
+.schedule {
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
+  color: #e90404;
+}
+
+p.desc,
+p.venue {
+  display: none;
 }
 
 .deleteEvent {
@@ -80,50 +119,26 @@ i {
   height: 1.5rem;
   width: 1.5rem;
 }
-.event {
-  height: 2.5rem;
-  width: 35rem;
-  border-bottom: black solid;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  padding-left: 10px;
-  padding-right: 10px;
-}
 
-.event:hover {
-  cursor: pointer;
-}
-.schedule {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  color: #e90404;
-}
-
-p.desc,
-p.venue {
-  display: none;
-}
-
-/*addEventBtn*/
 #addEventBtn {
-  height: 3rem;
-  width: 10rem;
-  font-size: 1rem;
-  border-radius: 9999px;
+  padding: 0.8rem 2rem;
+  font-size: 1.2rem;
+  border-radius: 20px;
   border: none;
   background-color: #e90404;
-  font-weight: 400;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
   margin-top: 4rem;
+}
+
+#addEventBtn:hover {
+  background-color: #c90303;
 }
 
 button:hover {
   cursor: pointer;
 }
-/*event displayer*/
 
 @keyframes moveLeft {
   from {
@@ -135,25 +150,37 @@ button:hover {
 }
 
 .eventDisplayer {
-  height: 100%;
-  width: 30%;
-  z-index: 2;
-  position: absolute;
-  right: 0%;
-  top: 0%;
-  border: 5px solid #e90404;
+  width: 35%;
   padding: 2rem;
-  font-size: 1.5rem;
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 100%;
+  z-index: 2;
+  border-left: solid 5px #e90404;
+  background-color: #fff5e6;
+  overflow-y: auto;
   visibility: hidden;
-  background-color: peachpuff;
+  animation: moveLeft 0.3s ease-in-out;
 }
+
 .eventDisplayer p {
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem;
+  color: #333;
 }
+
 .name {
-  font-size: 3rem;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #e90404;
   text-align: center;
-  font-weight: 800;
+}
+
+.closeButton {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  cursor: pointer;
 }
 
 .closeButton svg path {
@@ -161,23 +188,26 @@ button:hover {
   width: 2rem;
 }
 
-.closeButton:hover {
-  cursor: pointer;
-}
 #editBtn {
-  height: 3rem;
-  width: 10rem;
-  font-size: 1rem;
-  border-radius: 9999px;
+  padding: 0.8rem 2rem;
+  font-size: 1.2rem;
+  border-radius: 20px;
   border: none;
   background-color: #e90404;
-  font-weight: 400;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
   margin-top: 4rem;
 }
 
-input {
+#editBtn:hover {
+  background-color: #c90303;
+}
+
+input,
+textarea {
   border: none;
-  background-color: peachpuff;
+  background-color: #fff5e6;
   font-size: 1.5rem;
 }
 
@@ -190,6 +220,5 @@ input {
 
 #editDescInput {
   width: 100%;
-  background-color: peachpuff;
   font-size: 1.5rem;
 }
