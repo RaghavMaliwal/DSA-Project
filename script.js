@@ -64,7 +64,9 @@ function createEventElement(
   `;
 
   deleteEvent.addEventListener("click", () => {
-    deleteEvent.parentNode.remove();
+    if (confirm("You want to delete the event") == true) {
+      deleteEvent.parentNode.remove();
+    }
   });
 
   // Add click event listener to the new event
@@ -196,3 +198,8 @@ createEventElement(
   "Main Hall",
   "This is the default event."
 );
+
+let sharebtn = document.getElementById("shareBtn");
+sharebtn.addEventListener("click", () => {
+  html2pdf(eventsContainer);
+});
