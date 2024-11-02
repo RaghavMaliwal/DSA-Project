@@ -170,13 +170,9 @@ function searchEvents() {
   // Loop through each event and display or hide based on search text match
   Array.from(events).forEach(event => {
     let eventName = event.querySelector(".eventName").textContent.toLowerCase();
-    let venue = event.querySelector(".venue").textContent.toLowerCase();
-    let desc = event.querySelector(".desc").textContent.toLowerCase();
 
     if (
-      eventName.includes(searchText) ||
-      venue.includes(searchText) ||
-      desc.includes(searchText)
+      eventName.includes(searchText)
     ) {
       event.parentElement.style.display = ""; // Show event if it matches
     } else {
