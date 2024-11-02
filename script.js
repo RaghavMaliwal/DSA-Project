@@ -223,6 +223,6 @@ createEventElement(
   "Event Name",
   "00:00",
   "00:00",
-  "Loacation",
+  "Location",
   "Event Description!"
 );
