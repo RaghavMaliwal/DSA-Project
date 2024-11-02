@@ -160,6 +160,33 @@ function handleEventClick(eventElement) {
 // Handle adding a new event with default values
 addEventBtn.addEventListener("click", () => {
   createEventElement(); // Add a new event with default values
+
+// Element for search input
+let searchInput = document.getElementById("searchInput");
+
+// Function to search events based on user input
+function searchEvents() {
+  let searchText = searchInput.value.toLowerCase();
+  let events = eventsContainer.getElementsByClassName("event");
+
+  // Loop through each event and display or hide based on search text match
+  Array.from(events).forEach(event => {
+    let eventName = event.querySelector(".eventName").textContent.toLowerCase();
+
+    if (
+      eventName.includes(searchText)
+    ) {
+      event.parentElement.style.display = ""; // Show event if it matches
+    } else {
+      event.parentElement.style.display = "none"; // Hide event if it doesn’t match
+    }
+  });
+}
+
+// Add search event listener
+searchInput.addEventListener("input", searchEvents);
+
+
 });
 
 // Edit functionality
@@ -185,18 +212,17 @@ editBtn.addEventListener("click", () => {
       displayDescText.textContent;
   }
 
-  // Toggle the mode
   isEditMode = !isEditMode;
   updateViewMode();
 });
 
 // Initialize with a default event when the page loads
 createEventElement(
-  "Default Event",
+  "Event Name",
   "00:00",
   "00:00",
-  "Main Hall",
-  "This is the default event."
+  "Location",
+  "Event Description!"
 );
 
 let sharebtn = document.getElementById("shareBtn");
