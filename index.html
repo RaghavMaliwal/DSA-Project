@@ -24,9 +24,14 @@
     </header>
 
     <div class="searchSection">
-      <i class="fa-solid fa-magnifying-glass fa-xl" style="color: #e90404"></i>
-      <input type="text" id="searchInput" placeholder="Search a Event..." />
-      <button id="shareBtn">Share</button>
+      <div class="searchBar">
+        <i
+          class="fa-solid fa-magnifying-glass fa-xl"
+          style="color: #e90404"
+        ></i>
+        <input type="text" id="searchInput" placeholder="Search a Event..." />
+      </div>
+      <button id="shareBtn">Download</button>
     </div>
     <div class="main">
       <!-- Event container for dynamically added events -->
@@ -35,12 +40,7 @@
       <button id="addEventBtn">Add Event</button>
     </div>
 
-    <main class="main">
-      <div id="eventsContainer"></div>
-      <button id="addEventBtn">Add Event</button>
-    </main>
-
-    <aside class="eventDisplayer" style="visibility: hidden">
+    <div class="eventDisplayer" style="visibility: hidden">
       <div class="closeButton">
         <svg width="28" height="30" xmlns="http://www.w3.org/2000/svg">
           <path
@@ -82,10 +82,11 @@
           id="editDescInput"
           placeholder="Edit event details"
           style="display: none"
+          rows="1"
         ></textarea>
       </p>
       <button id="editBtn">Edit Details</button>
-    </aside>
+    </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
     <script src="script.js"></script>

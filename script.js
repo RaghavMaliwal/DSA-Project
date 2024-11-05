@@ -1,28 +1,9 @@
-// Elements
-let eventsContainer = document.getElementById("eventsContainer");
-let eventDisplayer = document.querySelector(".eventDisplayer");
-let addEventBtn = document.getElementById("addEventBtn");
-let closeButton = document.querySelector(".closeButton");
-
-// Display elements for the event displayer
-let displayNameText = document.getElementById("displayNameText");
-let displayStartTimeText = document.getElementById("stDetailText");
-let displayEndTimeText = document.getElementById("etDetailText");
-let displayVenueText = document.getElementById("vDetailText");
-let displayDescText = document.getElementById("descText");
-
-// Input elements for editing
-let editNameInput = document.getElementById("editNameInput");
-let editStartInput = document.getElementById("editStartInput");
-let editEndInput = document.getElementById("editEndInput");
-let editVenueInput = document.getElementById("editVenueInput");
-let editDescInput = document.getElementById("editDescInput");
-
-// Toggle button
-let editBtn = document.getElementById("editBtn");
-
-let isEditMode = false;
-let currentEvent = null; // Stores the current event being edited
+/* timestring to number */
+function toNumber(timeString) {
+  const [hours, minutes] = timeString.split(":").map(Number);
+  const totalMinutes = hours * 60 + minutes;
+  return totalMinutes;
+}
 
 class Node {
   constructor(name, start, end, color) {
@@ -136,7 +117,7 @@ class RedBlackTree {
 
     while (current !== this.TNULL) {
       parent = current;
-      if (newNode.start < current.start) {
+      if (toNumber(newNode.start) < toNumber(current.start)) {
         current = current.left;
       } else {
         current = current.right;
@@ -146,7 +127,7 @@ class RedBlackTree {
     newNode.parent = parent;
     if (parent === null) {
       this.root = newNode; // The tree was empty
-    } else if (newNode.start < parent.start) {
+    } else if (toNumber(newNode.start) < toNumber(parent.start)) {
       parent.left = newNode;
     } else {
       parent.right = newNode;
@@ -156,6 +137,7 @@ class RedBlackTree {
   }
 
   deleteNode(data) {
+    data = toNumber(data);
     this.deleteNodeHelper(this.root, data);
   }
 
@@ -164,11 +146,11 @@ class RedBlackTree {
     let x, y;
 
     while (node !== this.TNULL) {
-      if (node.start === key) {
+      if (toNumber(node.start) === key) {
         z = node;
       }
 
-      if (node.start <= key) {
+      if (toNumber(node.start) <= key) {
         node = node.right;
       } else {
         node = node.left;
@@ -289,23 +271,98 @@ class RedBlackTree {
   }
 
   search(data) {
-    return this._search(this.root, data);
+    let num_data = toNumber(data);
+    return this._search(this.root, num_data);
   }
 
   _search(node, data) {
-    if (node === this.NIL || data === node.value) {
+    if (node === this.TNULL || data === toNumber(node.start)) {
       return node; // Found or reached a NIL node
     }
 
-    if (data < node.value) {
+    if (data < toNumber(node.start)) {
       return this._search(node.left, data); // Search left subtree
     } else {
       return this._search(node.right, data); // Search right subtree
     }
   }
+
+  // Modify a node's details based on its start time
+  modify(oldStart, newName, newStart, newEnd) {
+    let node = this.search(oldStart);
+
+    if (node === this.TNULL) {
+      console.log("Node with start time", oldStart, "not found in the tree.");
+      return;
+    }
+
+    // // If node exists, modify its details
+    // node.name = newName;
+    // node.start = newStart;
+    // node.end = newEnd;
+
+    // Rebalance the tree if the start time has changed
+    if (toNumber(oldStart) !== toNumber(newStart)) {
+      this.deleteNode(oldStart); // Remove the old node
+      this.insert(newName, newStart, newEnd); // Insert the modified node
+    }
+
+    console.log("Node modified successfully.");
+  }
+  // Print the tree (in-order traversal)
+  inOrderHelper(node) {
+    if (node !== this.TNULL) {
+      this.inOrderHelper(node.left);
+      console.log(
+        "Node:" +
+          node.name +
+          ", Color:" +
+          node.color +
+          ", Start Time:" +
+          node.start
+      );
+      this.inOrderHelper(node.right);
+    }
+  }
+
+  // Public in-order traversal
+  inOrderTraversal() {
+    this.inOrderHelper(this.root);
+  }
 }
 
+/* MAIN TREE*/
+let tree = new RedBlackTree();
+/* MAIN TREE*/
+
 // Function to create a new event element
+
+// Elements
+let eventsContainer = document.getElementById("eventsContainer");
+let eventDisplayer = document.querySelector(".eventDisplayer");
+let addEventBtn = document.getElementById("addEventBtn");
+let closeButton = document.querySelector(".closeButton");
+
+// Display elements for the event displayer
+let displayNameText = document.getElementById("displayNameText");
+let displayStartTimeText = document.getElementById("stDetailText");
+let displayEndTimeText = document.getElementById("etDetailText");
+let displayVenueText = document.getElementById("vDetailText");
+let displayDescText = document.getElementById("descText");
+
+// Input elements for editing
+let editNameInput = document.getElementById("editNameInput");
+let editStartInput = document.getElementById("editStartInput");
+let editEndInput = document.getElementById("editEndInput");
+let editVenueInput = document.getElementById("editVenueInput");
+let editDescInput = document.getElementById("editDescInput");
+
+// Toggle button
+let editBtn = document.getElementById("editBtn");
+
+let isEditMode = false;
+let currentEvent = null; // Stores the current event being edited
+
 function createEventElement(
   name = "Event Name",
   startTime = "00:00",
@@ -313,6 +370,11 @@ function createEventElement(
   venue = "Location",
   desc = "Event Description!"
 ) {
+  /* TREE ADDED*/
+  tree.insert(name, startTime, endTime);
+  tree.inOrderTraversal();
+  /* TREE ADDED*/
+
   let newEvent = document.createElement("div");
   let mainEvent = document.createElement("div");
   let deleteEvent = document.createElement("div");
@@ -346,10 +408,13 @@ function createEventElement(
 
   deleteEvent.addEventListener("click", () => {
     if (confirm("You want to delete the event") == true) {
-      deleteEvent.parentNode.remove();
       tree.deleteNode(
-        deleteEvent.parentNode.childNodes[0].childNodes[1].childNodes[0].value
+        deleteEvent.parentNode.childNodes[0].childNodes[3].childNodes[1]
+          .innerHTML
       );
+      deleteEvent.parentNode.remove();
+
+      tree.inOrderTraversal();
     }
   });
 
@@ -445,27 +510,28 @@ function handleEventClick(eventElement) {
 addEventBtn.addEventListener("click", () => {
   createEventElement(); // Add a new event with default values
 
-// Element for search input
-let searchInput = document.getElementById("searchInput");
+  // Element for search input
+  let searchInput = document.getElementById("searchInput");
 
+  function searchEvents() {
+    let searchText = searchInput.value.toLowerCase();
+    let events = eventsContainer.getElementsByClassName("event");
 
-function searchEvents() {
-  let searchText = searchInput.value.toLowerCase();
-  let events = eventsContainer.getElementsByClassName("event");
+    Array.from(events).forEach((event) => {
+      let eventName = event
+        .querySelector(".eventName")
+        .textContent.toLowerCase();
+      event.parentElement.style.display = eventName.includes(searchText)
+        ? ""
+        : "none";
+    });
+  }
 
-  Array.from(events).forEach(event => {
-    let eventName = event.querySelector(".eventName").textContent.toLowerCase();
-    event.parentElement.style.display = eventName.includes(searchText) ? "" : "none";
-  });
-}
+  // Initialize with a default event in the RBT
+  //tree.insert("Event Name", "00:00", "00:00", "Location", "Event Description!");
 
-// Initialize with a default event in the RBT
-//tree.insert("Event Name", "00:00", "00:00", "Location", "Event Description!");
-
-
-
-// Add search event listener
-searchInput.addEventListener("input", searchEvents);
+  // Add search event listener
+  searchInput.addEventListener("input", searchEvents);
 });
 
 // Edit functionality
@@ -505,6 +571,17 @@ createEventElement(
 );
 
 let sharebtn = document.getElementById("shareBtn");
+let deleteIcon = document.querySelector(".deleteEvent");
 sharebtn.addEventListener("click", () => {
-  html2pdf(eventsContainer);
+  var opt = {
+    margin: 1,
+    filename: "Schedule.pdf",
+    image: { type: "jpeg", quality: 0.98 },
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
+  };
+
+  // New Promise-based usage:
+  deleteIcon.style.display = "none";
+  html2pdf().from(eventsContainer).set(opt).save();
 });
