@@ -6,7 +6,7 @@ function toNumber(timeString) {
 }
 
 class Node {
-  constructor(name, start, end, color) {
+  constructor(name, start, end, color, eventElement) {
     this.name = name;
     this.start = start;
     this.end = end;
@@ -14,101 +14,98 @@ class Node {
     this.left = null;
     this.right = null;
     this.parent = null;
+    this.data = eventElement; // Store reference to the DOM element
   }
 }
 
 class RedBlackTree {
   constructor() {
-    this.TNULL = new Node(null, "BLACK"); // Sentinel node for leaves
+    this.TNULL = new Node(null, null, null, "BLACK", null); // Sentinel node for leaves
     this.root = this.TNULL;
   }
 
-  // Rotate left at node x
-  leftRotate(x) {
-    let y = x.right;
-    x.right = y.left;
-    if (y.left !== this.TNULL) {
-      y.left.parent = x;
-    }
-    y.parent = x.parent;
-    if (x.parent === null) {
-      this.root = y;
-    } else if (x === x.parent.left) {
-      x.parent.left = y;
-    } else {
-      x.parent.right = y;
-    }
-    y.left = x;
-    x.parent = y;
-  }
-
-  // Rotate right at node x
-  rightRotate(x) {
-    let y = x.left;
-    x.left = y.right;
-    if (y.right !== this.TNULL) {
-      y.right.parent = x;
-    }
-    y.parent = x.parent;
-    if (x.parent === null) {
-      this.root = y;
-    } else if (x === x.parent.right) {
-      x.parent.right = y;
-    } else {
-      x.parent.left = y;
-    }
-    y.right = x;
-    x.parent = y;
-  }
-
-  // Balance the tree after insertion
-  balanceInsert(node) {
-    let current = node;
-    while (current.parent && current.parent.color === "RED") {
-      if (current.parent === current.parent.parent.left) {
-        let uncle = current.parent.parent.right;
-        if (uncle && uncle.color === "RED") {
-          // Case 1: uncle is red (recolor)
-          current.parent.color = "BLACK";
-          uncle.color = "BLACK";
-          current.parent.parent.color = "RED";
-          current = current.parent.parent;
-        } else {
-          // Case 2 or 3: uncle is black (rotate)
-          if (current === current.parent.right) {
-            current = current.parent;
-            this.leftRotate(current); // Left rotation
-          }
-          current.parent.color = "BLACK";
-          current.parent.parent.color = "RED";
-          this.rightRotate(current.parent.parent); // Right rotation
-        }
+    // Rotate left at node x
+    leftRotate(x) {
+      let y = x.right;
+      x.right = y.left;
+      if (y.left !== this.TNULL) {
+        y.left.parent = x;
+      }
+      y.parent = x.parent;
+      if (x.parent === null) {
+        this.root = y;
+      } else if (x === x.parent.left) {
+        x.parent.left = y;
       } else {
-        let uncle = current.parent.parent.left;
-        if (uncle && uncle.color === "RED") {
-          // Mirror Case 1: uncle is red
-          current.parent.color = "BLACK";
-          uncle.color = "BLACK";
-          current.parent.parent.color = "RED";
-          current = current.parent.parent;
-        } else {
-          // Mirror Case 2 or 3: uncle is black
-          if (current === current.parent.left) {
-            current = current.parent;
-            this.rightRotate(current); // Right rotation
+        x.parent.right = y;
+      }
+      y.left = x;
+      x.parent = y;
+    }
+  
+    // Rotate right at node x
+    rightRotate(x) {
+      let y = x.left;
+      x.left = y.right;
+      if (y.right !== this.TNULL) {
+        y.right.parent = x;
+      }
+      y.parent = x.parent;
+      if (x.parent === null) {
+        this.root = y;
+      } else if (x === x.parent.right) {
+        x.parent.right = y;
+      } else {
+        x.parent.left = y;
+      }
+      y.right = x;
+      x.parent = y;
+    }
+    
+    // Balance the tree after insertion (same as in previous implementation)
+    balanceInsert(node) {
+      let current = node;
+      while (current.parent && current.parent.color === "RED") {
+        if (current.parent === current.parent.parent.left) {
+          let uncle = current.parent.parent.right;
+          if (uncle && uncle.color === "RED") {
+            current.parent.color = "BLACK";
+            uncle.color = "BLACK";
+            current.parent.parent.color = "RED";
+            current = current.parent.parent;
+          } else {
+            if (current === current.parent.right) {
+              current = current.parent;
+              this.leftRotate(current);
+            }
+            current.parent.color = "BLACK";
+            current.parent.parent.color = "RED";
+            this.rightRotate(current.parent.parent);
           }
-          current.parent.color = "BLACK";
-          current.parent.parent.color = "RED";
-          this.leftRotate(current.parent.parent); // Left rotation
+        } else {
+          let uncle = current.parent.parent.left;
+          if (uncle && uncle.color === "RED") {
+            current.parent.color = "BLACK";
+            uncle.color = "BLACK";
+            current.parent.parent.color = "RED";
+            current = current.parent.parent;
+          } else {
+            if (current === current.parent.left) {
+              current = current.parent;
+              this.rightRotate(current);
+            }
+            current.parent.color = "BLACK";
+            current.parent.parent.color = "RED";
+            this.leftRotate(current.parent.parent);
+          }
         }
       }
+      this.root.color = "BLACK"; // The root must always be black
     }
-    this.root.color = "BLACK"; // The root must always be black
-  }
 
-  // Insert a node
-  insert(name, start, end) {
-    let newNode = new Node(name, start, end, "RED"); // New nodes are red by default
+  // Insert a node by event name
+  insert(name, start, end, eventElement) {
+    let newNode = new Node(name, start, end, "RED", eventElement); // Associate event element with node
     newNode.left = this.TNULL;
     newNode.right = this.TNULL;
 
@@ -117,7 +114,7 @@ class RedBlackTree {
 
     while (current !== this.TNULL) {
       parent = current;
-      if (toNumber(newNode.start) < toNumber(current.start)) {
+      if (name.toLowerCase() < current.name.toLowerCase()) {
         current = current.left;
       } else {
         current = current.right;
@@ -127,7 +124,7 @@ class RedBlackTree {
     newNode.parent = parent;
     if (parent === null) {
       this.root = newNode; // The tree was empty
-    } else if (toNumber(newNode.start) < toNumber(parent.start)) {
+    } else if (name.toLowerCase() < parent.name.toLowerCase()) {
       parent.left = newNode;
     } else {
       parent.right = newNode;
@@ -135,200 +132,197 @@ class RedBlackTree {
 
     this.balanceInsert(newNode); // Balance the tree
   }
+    // Delete a node by event name
+    deleteNode(name) {
+      this.deleteNodeHelper(this.root, name.toLowerCase());
+    }
 
-  deleteNode(data) {
-    data = toNumber(data);
-    this.deleteNodeHelper(this.root, data);
-  }
-
-  deleteNodeHelper(node, key) {
-    let z = this.TNULL;
-    let x, y;
-
-    while (node !== this.TNULL) {
-      if (toNumber(node.start) === key) {
-        z = node;
+    deleteNodeHelper(node, name) {
+      let z = this.TNULL;
+      let x, y;
+  
+      // Find the node with the given name
+      while (node !== this.TNULL) {
+        if (node.name.toLowerCase() === name) {
+          z = node;
+        }
+  
+        if (name < node.name.toLowerCase()) {
+          node = node.left;
+        } else {
+          node = node.right;
+        }
       }
-
-      if (toNumber(node.start) <= key) {
-        node = node.right;
+  
+      if (z === this.TNULL) {
+        console.log("Node not found in the tree");
+        return;
+      }
+  
+      y = z;
+      let yOriginalColor = y.color;
+      if (z.left === this.TNULL) {
+        x = z.right;
+        this.transplant(z, z.right);
+      } else if (z.right === this.TNULL) {
+        x = z.left;
+        this.transplant(z, z.left);
       } else {
+        y = this.minimum(z.right);
+        yOriginalColor = y.color;
+        x = y.right;
+        if (y.parent === z) {
+          x.parent = y;
+        } else {
+          this.transplant(y, y.right);
+          y.right = z.right;
+          y.right.parent = y;
+        }
+  
+        this.transplant(z, y);
+        y.left = z.left;
+        y.left.parent = y;
+        y.color = z.color;
+      }
+  
+      if (yOriginalColor === "BLACK") {
+        this.fixDelete(x);
+      }
+    }
+
+    transplant(u, v) {
+      if (u.parent === null) {
+        this.root = v;
+      } else if (u === u.parent.left) {
+        u.parent.left = v;
+      } else {
+        u.parent.right = v;
+      }
+      v.parent = u.parent;
+    }
+  
+    minimum(node) {
+      while (node.left !== this.TNULL) {
         node = node.left;
       }
+      return node;
     }
-
-    if (z === this.TNULL) {
-      console.log("Node not found in the tree");
-      return;
-    }
-
-    y = z;
-    let yOriginalColor = y.color;
-    if (z.left === this.TNULL) {
-      x = z.right;
-      this.transplant(z, z.right);
-    } else if (z.right === this.TNULL) {
-      x = z.left;
-      this.transplant(z, z.left);
-    } else {
-      y = this.minimum(z.right);
-      yOriginalColor = y.color;
-      x = y.right;
-      if (y.parent === z) {
-        x.parent = y;
-      } else {
-        this.transplant(y, y.right);
-        y.right = z.right;
-        y.right.parent = y;
-      }
-
-      this.transplant(z, y);
-      y.left = z.left;
-      y.left.parent = y;
-      y.color = z.color;
-    }
-
-    if (yOriginalColor === "BLACK") {
-      this.fixDelete(x);
-    }
-  }
-
-  transplant(u, v) {
-    if (u.parent === null) {
-      this.root = v;
-    } else if (u === u.parent.left) {
-      u.parent.left = v;
-    } else {
-      u.parent.right = v;
-    }
-    v.parent = u.parent;
-  }
-
-  minimum(node) {
-    while (node.left !== this.TNULL) {
-      node = node.left;
-    }
-    return node;
-  }
-
-  fixDelete(x) {
-    while (x !== this.root && x.color === "BLACK") {
-      if (x === x.parent.left) {
-        let w = x.parent.right;
-        if (w.color === "RED") {
-          w.color = "BLACK";
-          x.parent.color = "RED";
-          this.leftRotate(x.parent);
-          w = x.parent.right;
-        }
-
-        if (w.left.color === "BLACK" && w.right.color === "BLACK") {
-          w.color = "RED";
-          x = x.parent;
-        } else {
-          if (w.right.color === "BLACK") {
-            w.left.color = "BLACK";
-            w.color = "RED";
-            this.rightRotate(w);
+  
+    fixDelete(x) {
+      while (x !== this.root && x.color === "BLACK") {
+        if (x === x.parent.left) {
+          let w = x.parent.right;
+          if (w.color === "RED") {
+            w.color = "BLACK";
+            x.parent.color = "RED";
+            this.leftRotate(x.parent);
             w = x.parent.right;
           }
-
-          w.color = x.parent.color;
-          x.parent.color = "BLACK";
-          w.right.color = "BLACK";
-          this.leftRotate(x.parent);
-          x = this.root;
-        }
-      } else {
-        let w = x.parent.left;
-        if (w.color === "RED") {
-          w.color = "BLACK";
-          x.parent.color = "RED";
-          this.rightRotate(x.parent);
-          w = x.parent.left;
-        }
-
-        if (w.left.color === "BLACK" && w.right.color === "BLACK") {
-          w.color = "RED";
-          x = x.parent;
-        } else {
-          if (w.left.color === "BLACK") {
-            w.right.color = "BLACK";
+  
+          if (w.left.color === "BLACK" && w.right.color === "BLACK") {
             w.color = "RED";
-            this.leftRotate(w);
+            x = x.parent;
+          } else {
+            if (w.right.color === "BLACK") {
+              w.left.color = "BLACK";
+              w.color = "RED";
+              this.rightRotate(w);
+              w = x.parent.right;
+            }
+  
+            w.color = x.parent.color;
+            x.parent.color = "BLACK";
+            w.right.color = "BLACK";
+            this.leftRotate(x.parent);
+            x = this.root;
+          }
+        } else {
+          let w = x.parent.left;
+          if (w.color === "RED") {
+            w.color = "BLACK";
+            x.parent.color = "RED";
+            this.rightRotate(x.parent);
             w = x.parent.left;
           }
-
-          w.color = x.parent.color;
-          x.parent.color = "BLACK";
-          w.left.color = "BLACK";
-          this.rightRotate(x.parent);
-          x = this.root;
+  
+          if (w.left.color === "BLACK" && w.right.color === "BLACK") {
+            w.color = "RED";
+            x = x.parent;
+          } else {
+            if (w.left.color === "BLACK") {
+              w.right.color = "BLACK";
+              w.color = "RED";
+              this.leftRotate(w);
+              w = x.parent.left;
+            }
+  
+            w.color = x.parent.color;
+            x.parent.color = "BLACK";
+            w.left.color = "BLACK";
+            this.rightRotate(x.parent);
+            x = this.root;
+          }
         }
       }
-    }
-    x.color = "BLACK";
-  }
-
-  search(data) {
-    let num_data = toNumber(data);
-    return this._search(this.root, num_data);
-  }
-
-  _search(node, data) {
-    if (node === this.TNULL || data === toNumber(node.start)) {
-      return node; // Found or reached a NIL node
+      x.color = "BLACK";
     }
 
-    if (data < toNumber(node.start)) {
-      return this._search(node.left, data); // Search left subtree
-    } else {
-      return this._search(node.right, data); // Search right subtree
+    // Search by event name
+    search(name) {
+      return this._search(this.root, name.toLowerCase());
     }
-  }
+  
+    _search(node, name) {
+      if (node === this.TNULL || name === node.name.toLowerCase()) {
+        return node; // Found or reached a NIL node
+      }
+  
+      if (name < node.name.toLowerCase()) {
+        return this._search(node.left, name); // Search left subtree
+      } else {
+        return this._search(node.right, name); // Search right subtree
+      }
+    }
 
-  // Modify a node's details based on its start time
-  modify(oldStart, newName, newStart, newEnd) {
-    let node = this.search(oldStart);
-
-    if (node === this.TNULL) {
-        console.log("Node with start time", oldStart, "not found in the tree.");
+    // Modify a node's details based on event name
+    modify(oldName, newName, newStart, newEnd) {
+      let node = this.search(oldName.toLowerCase());
+  
+      if (node === this.TNULL) {
+        console.log("Node with name", oldName, "not found in the tree.");
         return;
-    }
-
-    // Update the node's properties directly
-    node.name = newName;
-
-    // Check if the start time has changed
-    if (toNumber(oldStart) !== toNumber(newStart)) {
-        // Store the old values
+      }
+  
+      // Check if the name has changed
+      if (oldName.toLowerCase() !== newName.toLowerCase()) {
+        // Store the old times
+        let oldStart = node.start;
         let oldEnd = node.end;
-
-        // Delete the node from the tree
-        this.deleteNode(oldStart);
-        
-        // Insert the updated node with new start and end times
+  
+        // Delete the old node
+        this.deleteNode(oldName);
+  
+        // Insert a new node with updated details
         this.insert(newName, newStart, newEnd);
-    } else {
-        // If only the name is changed, update the end time as well
-        node.end = newEnd; // Update end time if necessary
+      } else {
+        // Update only the start and end times if the name hasn't changed
+        node.start = newStart;
+        node.end = newEnd;
+      }
+  
+      console.log("Node modified successfully.");
     }
-
-    console.log("Node modified successfully.");
-  }
+    
   // Print the tree (in-order traversal)
   inOrderHelper(node) {
     if (node !== this.TNULL) {
       this.inOrderHelper(node.left);
       console.log(
-        "Node:" +
-          node.name +
-          ", Color:" +
-          node.color +
-          ", Start Time:" +
-          node.start
+        node
       );
-      this.inOrderHelper(node.right);
+      if (node.right !== this.TNULL){
+        this.inOrderHelper(node.right);
+      }
     }
   }
 
@@ -375,7 +369,7 @@ function createEventElement(
   startTime = "00:00",
   endTime = "00:00",
   venue = "Location",
-  desc = "Event Description!"
+  desc = "Event Description"
 ) {
   /* TREE ADDED*/
   tree.insert(name, startTime, endTime);
@@ -414,24 +408,29 @@ function createEventElement(
   `;
 
   deleteEvent.addEventListener("click", () => {
-    if (confirm("You want to delete the event") == true) {
-      tree.deleteNode(
-        deleteEvent.parentNode.childNodes[0].childNodes[3].childNodes[1]
-          .innerHTML
-      );
+    if (confirm("You want to delete the event?")) {
+      // Get the event name from the DOM element to use as the identifier for deletion
+      const eventName = deleteEvent.parentNode.querySelector(".eventName").innerHTML;
+  
+      // Delete the node from the Red-Black Tree
+      tree.deleteNode(eventName);
+  
+      // Remove the event from the UI
       deleteEvent.parentNode.remove();
-
+  
+      // Optional: Verify the tree structure after deletion
       tree.inOrderTraversal();
     }
   });
-
-  // Add click event listener to the new event
+  
+  // Add click event listener to the new event to display event details
   newEvent.addEventListener("click", () => {
     handleEventClick(newEvent);
   });
-
-  // Append the new event to the container
+  
+  // Append the mainEvent container to the events container
   eventsContainer.appendChild(mainEvent);
+  
 }
 
 // Close button functionality
@@ -487,109 +486,146 @@ function updateViewMode() {
   }
 }
 
-// Function to update event details in both the home screen and event displayer
+// Function to display event details in the event displayer on click
 function handleEventClick(eventElement) {
+  if (!eventElement) {
+    console.warn("Event element not found for display.");
+    return;
+  }
+
   currentEvent = eventElement;
 
-  let eventName = eventElement.querySelector(".eventName").textContent;
-  let startTime = eventElement.querySelector(".startTime").textContent;
-  let endTime = eventElement.querySelector(".endTime").textContent;
-  let venue = eventElement.querySelector(".venue").textContent;
-  let desc = eventElement.querySelector(".desc").textContent;
+  // Retrieve and display event details
+  let eventName = eventElement.querySelector(".eventName")?.textContent;
+  let startTime = eventElement.querySelector(".startTime")?.textContent;
+  let endTime = eventElement.querySelector(".endTime")?.textContent;
+  let venue = eventElement.querySelector(".venue")?.textContent || "Location";
+  let desc = eventElement.querySelector(".desc")?.textContent || "Description";
 
-  // Update the event displayer with clicked event details
   displayNameText.textContent = eventName;
   displayStartTimeText.textContent = startTime;
   displayEndTimeText.textContent = endTime;
   displayVenueText.textContent = venue;
   displayDescText.textContent = desc;
 
-  // Make the event displayer visible
+  // Make the event displayer visible with an animation
   eventDisplayer.style.visibility = "visible";
   eventDisplayer.style.animationName = "moveLeft";
   eventDisplayer.style.animationDuration = "0.3s";
 
+  // Reset animation to allow retriggering if needed
+  eventDisplayer.addEventListener("animationend", () => {
+    eventDisplayer.style.animationName = "";
+  }, { once: true });
+
+  // Switch to view mode if in edit mode
   isEditMode = false;
   updateViewMode();
 }
 
-// Handle adding a new event with default values
+// Event listener for the "Add Event" button
 addEventBtn.addEventListener("click", () => {
-  createEventElement(); // Add a new event with default values
+  // Create and add a new event with default values
+  let newEvent = createEventElement();
 
-  // Element for search input
-  let searchInput = document.getElementById("searchInput");
-
-  function searchEvents() {
-    let searchText = searchInput.value.toLowerCase();
-    let events = eventsContainer.getElementsByClassName("event");
-
-    Array.from(events).forEach((event) => {
-      let eventName = event
-        .querySelector(".eventName")
-        .textContent.toLowerCase();
-      event.parentElement.style.display = eventName.includes(searchText)
-        ? ""
-        : "none";
-    });
+  // Initialize the Red-Black Tree for events if it doesn't already exist
+  if (!window.eventTree) {
+    window.eventTree = new RedBlackTree();
   }
 
-  // Initialize with a default event in the RBT
-  //tree.insert("Event Name", "00:00", "00:00", "Location", "Event Description!");
+  // Extract event details from the newly created element
+  let eventName = "Event Name";
+  let startTime = "00:00";
+  let endTime = "00:00";
 
-  // Add search event listener
-  searchInput.addEventListener("input", searchEvents);
+  // Convert times to numeric values for insertion
+  const startNumeric = toNumber(startTime);
+  const endNumeric = toNumber(endTime);
+
+  // Insert the event into the Red-Black Tree
+  window.eventTree.insert(eventName.toLowerCase(), startNumeric, endNumeric, newEvent);
+
+  console.log("Event added:", eventName);
 });
 
-// Edit functionality
+// Search functionality
+function searchEvents() {
+  let searchText = searchInput.value.toLowerCase();
+  let resultNode = window.eventTree.search(searchText);
+
+  // Hide all events initially
+  let events = eventsContainer.getElementsByClassName("event");
+  Array.from(events).forEach((event) => {
+    event.style.display = "none";
+  });
+
+  // Show the event if found
+  if (resultNode && resultNode !== window.eventTree.TNULL && resultNode.data) {
+    // Ensure resultNode.data exists before trying to modify its style
+    resultNode.data.style.display = ""; // `data` holds the event element
+    console.log(resultNode);  // Add this to see the result structure
+
+  } else {
+    console.log("Event not found");
+    console.log(resultNode);  // Add this to see the result structure
+
+  }
+}
+
+
+// Event listener for search input
+searchInput.addEventListener("input", searchEvents);
+
+
+// Edit functionality for modifying event details
 editBtn.addEventListener("click", () => {
   if (isEditMode) {
-      // Get the original start time before modification
+      // Retrieve the original start time before modification
       let originalStartTime = displayStartTimeText.textContent;
+      let originalname = displayNameText.textContent;
       
-      // Get new values from input fields
+      // Get new values from the edit input fields
       let newName = editNameInput.value;
       let newStartTime = editStartInput.value;
       let newEndTime = editEndInput.value;
       let newVenue = editVenueInput.value;
       let newDesc = editDescInput.value;
 
-      // Update the Red-Black Tree
-      tree.modify(originalStartTime, newName, newStartTime, newEndTime);
+      // Ensure Red-Black Tree is initialized and update the tree with new values
+      if (window.eventTree && currentEvent) {
+          // Convert times to a numeric format if needed by the Red-Black Tree
+          const newStartNumeric = toNumber(newStartTime);
+          const newEndNumeric = toNumber(newEndTime);
 
-      // Update the display texts
-      displayNameText.textContent = newName;
-      displayStartTimeText.textContent = newStartTime;
-      displayEndTimeText.textContent = newEndTime;
-      displayVenueText.textContent = newVenue;
-      displayDescText.textContent = newDesc;
+          // Call a custom 'modify' method in the Red-Black Tree
+          window.eventTree.modify(originalname, newName.toLowerCase(), newStartNumeric, newEndNumeric);
 
-      // Update the event in the main container (home screen)
-      if (currentEvent) {
+          // Update the display texts with new values
+          displayNameText.textContent = newName;
+          displayStartTimeText.textContent = newStartTime;
+          displayEndTimeText.textContent = newEndTime;
+          displayVenueText.textContent = newVenue;
+          displayDescText.textContent = newDesc;
+
+          // Update the event in the main container (home screen) if it exists
           currentEvent.querySelector(".eventName").textContent = newName;
           currentEvent.querySelector(".startTime").textContent = newStartTime;
           currentEvent.querySelector(".endTime").textContent = newEndTime;
           currentEvent.querySelector(".venue").textContent = newVenue;
           currentEvent.querySelector(".desc").textContent = newDesc;
+
+          // Debug: Print the tree structure after modification
+          console.log("Tree after modification:");
+          window.eventTree.inOrderTraversal();
+      } else {
+          console.warn("Event tree or current event not available for modification.");
       }
+  }
 
-      // Debug: Print tree after modification
-      console.log("Tree after modification:");
-      tree.inOrderTraversal();
-    }
-
-    isEditMode = !isEditMode;
-    updateViewMode();
+  // Toggle edit mode and update the view
+  isEditMode = !isEditMode;
+  updateViewMode();
 });
-
-// Initialize with a default event when the page loads
-createEventElement(
-  "Event Name",
-  "00:00",
-  "00:00",
-  "Location",
-  "Event Description!"
-);
 
 let sharebtn = document.getElementById("shareBtn");
 let deleteIcon = document.querySelector(".deleteEvent");
