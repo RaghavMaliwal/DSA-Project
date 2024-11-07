@@ -292,19 +292,26 @@ class RedBlackTree {
     let node = this.search(oldStart);
 
     if (node === this.TNULL) {
-      console.log("Node with start time", oldStart, "not found in the tree.");
-      return;
+        console.log("Node with start time", oldStart, "not found in the tree.");
+        return;
     }
 
-    // // If node exists, modify its details
-    // node.name = newName;
-    // node.start = newStart;
-    // node.end = newEnd;
+    // Update the node's properties directly
+    node.name = newName;
 
-    // Rebalance the tree if the start time has changed
+    // Check if the start time has changed
     if (toNumber(oldStart) !== toNumber(newStart)) {
-      this.deleteNode(oldStart); // Remove the old node
-      this.insert(newName, newStart, newEnd); // Insert the modified node
+        // Store the old values
+        let oldEnd = node.end;
+
+        // Delete the node from the tree
+        this.deleteNode(oldStart);
+        
+        // Insert the updated node with new start and end times
+        this.insert(newName, newStart, newEnd);
+    } else {
+        // If only the name is changed, update the end time as well
+        node.end = newEnd; // Update end time if necessary
     }
 
     console.log("Node modified successfully.");
@@ -537,28 +544,42 @@ addEventBtn.addEventListener("click", () => {
 // Edit functionality
 editBtn.addEventListener("click", () => {
   if (isEditMode) {
-    // Save the changes
-    displayNameText.textContent = editNameInput.value;
-    displayStartTimeText.textContent = editStartInput.value;
-    displayEndTimeText.textContent = editEndInput.value;
-    displayVenueText.textContent = editVenueInput.value;
-    displayDescText.textContent = editDescInput.value;
+      // Get the original start time before modification
+      let originalStartTime = displayStartTimeText.textContent;
+      
+      // Get new values from input fields
+      let newName = editNameInput.value;
+      let newStartTime = editStartInput.value;
+      let newEndTime = editEndInput.value;
+      let newVenue = editVenueInput.value;
+      let newDesc = editDescInput.value;
 
-    // Update the event in the main container (home screen)
-    currentEvent.querySelector(".eventName").textContent =
-      displayNameText.textContent;
-    currentEvent.querySelector(".startTime").textContent =
-      displayStartTimeText.textContent;
-    currentEvent.querySelector(".endTime").textContent =
-      displayEndTimeText.textContent;
-    currentEvent.querySelector(".venue").textContent =
-      displayVenueText.textContent;
-    currentEvent.querySelector(".desc").textContent =
-      displayDescText.textContent;
-  }
+      // Update the Red-Black Tree
+      tree.modify(originalStartTime, newName, newStartTime, newEndTime);
 
-  isEditMode = !isEditMode;
-  updateViewMode();
+      // Update the display texts
+      displayNameText.textContent = newName;
+      displayStartTimeText.textContent = newStartTime;
+      displayEndTimeText.textContent = newEndTime;
+      displayVenueText.textContent = newVenue;
+      displayDescText.textContent = newDesc;
+
+      // Update the event in the main container (home screen)
+      if (currentEvent) {
+          currentEvent.querySelector(".eventName").textContent = newName;
+          currentEvent.querySelector(".startTime").textContent = newStartTime;
+          currentEvent.querySelector(".endTime").textContent = newEndTime;
+          currentEvent.querySelector(".venue").textContent = newVenue;
+          currentEvent.querySelector(".desc").textContent = newDesc;
+      }
+
+      // Debug: Print tree after modification
+      console.log("Tree after modification:");
+      tree.inOrderTraversal();
+    }
+
+    isEditMode = !isEditMode;
+    updateViewMode();
 });
 
 // Initialize with a default event when the page loads
