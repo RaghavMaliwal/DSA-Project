@@ -298,12 +298,31 @@ class RedBlackTree {
       // Store the old times
       let oldName = node.name;
       let oldEnd = node.end;
+      let oldDiv = node.data;
 
       // Delete the old node
       this.deleteNode(oldStart);
 
+      let divs = eventsContainer.childNodes;
+      let value = toNumber(newStart);
+      // Find the position to insert the new div in sorted order
+      let inserted = false;
+      for (let i = 0; i < divs.length; i++) {
+        let divTime = toNumber(divs[i].querySelector(".startTime").innerHTML);
+        if (value < divTime) {
+          eventsContainer.insertBefore(oldDiv, divs[i]);
+          inserted = true;
+          break;
+        }
+      }
+
+      // If no larger element is found, append the new div at the end
+      if (!inserted) {
+        eventsContainer.appendChild(oldDiv);
+      }
+
       // Insert a new node with updated details
-      this.insert(newName, newStart, newEnd);
+      this.insert(newName, newStart, newEnd, oldDiv);
     } else {
       // Update only the start and end times if the name hasn't changed
       node.name = newName;
@@ -438,7 +457,7 @@ function updateViewMode() {
 
     displayEndTimeText.style.display = "none";
     editEndInput.style.display = "inline";
-    editEndInput.value = displayEndTimeText.textContent;
+    editEndInput.value = displayEndTimeText.textContent.trim();
 
     displayVenueText.style.display = "none";
     editVenueInput.style.display = "inline";
@@ -447,6 +466,9 @@ function updateViewMode() {
     displayDescText.style.display = "none";
     editDescInput.style.display = "block";
     editDescInput.value = displayDescText.textContent;
+
+    console.log("Start Time Text:", displayStartTimeText.textContent);
+    console.log("End Time Text:", displayEndTimeText.textContent);
 
     editBtn.textContent = "Save Details";
   } else {
@@ -631,12 +653,12 @@ editBtn.addEventListener("click", () => {
     // Ensure Red-Black Tree is initialized and update the tree with new values
     if (window.eventTree && currentEvent) {
       // Convert times to a numeric format if needed by the Red-Black Tree
-      const newStartNumeric = toNumber(newStartTime);
-      const newEndNumeric = toNumber(newEndTime);
+      const newStartNumeric = newStartTime;
+      const newEndNumeric = newEndTime;
 
       // Call a custom 'modify' method in the Red-Black Tree
       window.eventTree.modify(
-        originalname,
+        originalStartTime,
         newName.toLowerCase(),
         newStartNumeric,
         newEndNumeric
