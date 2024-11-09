@@ -88,7 +88,41 @@
       <button id="editBtn">Edit Details</button>
     </div>
 
+    <div class="inputPopUp">
+      <div class="form-container">
+        <form action="" class="form">
+          <h1>Event Details</h1>
+
+          <label for="event"><b>Event Name</b></label>
+          <input
+            type="text"
+            placeholder="Enter Event Name"
+            name="event"
+            required
+          />
+
+          <label for="start"><b>Start Time</b></label>
+          <input type="time" placeholder="" name="start" required />
+
+          <label for="end"><b>End Time</b></label>
+          <input type="time" placeholder="" name="end" required />
+          <label for="venue"><b>Venue</b></label>
+          <input type="text" placeholder="Enter Venue" name="venue" required />
+          <label for="description"><b>Description</b></label>
+          <input
+            type="text"
+            placeholder="Description"
+            name="description"
+            required
+          />
+
+          <button type="submit" class="btn">Add</button>
+          <button type="button" class="btn cancel">Close</button>
+        </form>
+      </div>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
-    <script src="script.js"></script>
+    <script src="script2.js"></script>
   </body>
 </html>
