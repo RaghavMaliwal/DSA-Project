@@ -114,7 +114,7 @@ class RedBlackTree {
 
     while (current !== this.TNULL) {
       parent = current;
-      if (name.toLowerCase() < current.name.toLowerCase()) {
+      if (toNumber(start) < toNumber(current.start)) {
         current = current.left;
       } else {
         current = current.right;
@@ -124,7 +124,7 @@ class RedBlackTree {
     newNode.parent = parent;
     if (parent === null) {
       this.root = newNode; // The tree was empty
-    } else if (name.toLowerCase() < parent.name.toLowerCase()) {
+    } else if (toNumber(start) < toNumber(parent.start)) {
       parent.left = newNode;
     } else {
       parent.right = newNode;
@@ -133,21 +133,21 @@ class RedBlackTree {
     this.balanceInsert(newNode); // Balance the tree
   }
   // Delete a node by event name
-  deleteNode(name) {
-    this.deleteNodeHelper(this.root, name.toLowerCase());
+  deleteNode(start) {
+    this.deleteNodeHelper(this.root, start);
   }
 
-  deleteNodeHelper(node, name) {
+  deleteNodeHelper(node, start) {
     let z = this.TNULL;
     let x, y;
 
-    // Find the node with the given name
+    // Find the node with the given start
     while (node !== this.TNULL) {
-      if (node.name.toLowerCase() === name) {
+      if (toNumber(node.start) === toNumber(start)) {
         z = node;
       }
 
-      if (name < node.name.toLowerCase()) {
+      if (toNumber(start) < toNumber(node.start)) {
         node = node.left;
       } else {
         node = node.right;
@@ -268,45 +268,65 @@ class RedBlackTree {
   }
 
   // Search by event name
-  search(name) {
-    return this._search(this.root, name.toLowerCase());
+  search(start) {
+    return this._search(this.root, start);
   }
 
-  _search(node, name) {
-    if (node === this.TNULL || name === node.name.toLowerCase()) {
+  _search(node, start) {
+    if (node === this.TNULL || toNumber(start) === toNumber(node.start)) {
       return node; // Found or reached a NIL node
     }
 
-    if (name < node.name.toLowerCase()) {
-      return this._search(node.left, name); // Search left subtree
+    if (toNumber(start) < toNumber(node.start)) {
+      return this._search(node.left, start); // Search left subtree
     } else {
-      return this._search(node.right, name); // Search right subtree
+      return this._search(node.right, start); // Search right subtree
     }
   }
 
   // Modify a node's details based on event name
-  modify(oldName, newName, newStart, newEnd) {
-    let node = this.search(oldName.toLowerCase());
+  modify(oldStart, newName, newStart, newEnd) {
+    let node = this.search(oldStart);
 
     if (node === this.TNULL) {
-      console.log("Node with name", oldName, "not found in the tree.");
+      console.log("Node not found in the tree.");
       return;
     }
 
     // Check if the name has changed
-    if (oldName.toLowerCase() !== newName.toLowerCase()) {
+    if (oldStart !== newStart) {
       // Store the old times
-      let oldStart = node.start;
+      let oldName = node.name;
       let oldEnd = node.end;
+      let oldDiv = node.data;
 
       // Delete the old node
-      this.deleteNode(oldName);
+      this.deleteNode(oldStart);
+
+      let divs = eventsContainer.childNodes;
+      let value = toNumber(newStart);
+      // Find the position to insert the new div in sorted order
+      let inserted = false;
+      for (let i = 0; i < divs.length; i++) {
+        let divTime = toNumber(divs[i].querySelector(".startTime").innerHTML);
+        if (value < divTime) {
+          eventsContainer.insertBefore(oldDiv, divs[i]);
+          inserted = true;
+          break;
+        }
+      }
+
+      // If no larger element is found, append the new div at the end
+      if (!inserted) {
+        eventsContainer.appendChild(oldDiv);
+      }
 
       // Insert a new node with updated details
-      this.insert(newName, newStart, newEnd);
+      this.insert(newName, newStart, newEnd, oldDiv);
+      eventTree.inOrderTraversal();
     } else {
       // Update only the start and end times if the name hasn't changed
-      node.start = newStart;
+      node.name = newName;
       node.end = newEnd;
     }
 
@@ -316,8 +336,10 @@ class RedBlackTree {
   // Print the tree (in-order traversal)
   inOrderHelper(node) {
     if (node !== this.TNULL) {
+      
       this.inOrderHelper(node.left);
       console.log(node);
+      node.data.querySelector(".event").style.border = "5px " + node.color + " solid"; // Add a space before "solid"
       if (node.right !== this.TNULL) {
         this.inOrderHelper(node.right);
       }
@@ -329,10 +351,6 @@ class RedBlackTree {
     this.inOrderHelper(this.root);
   }
 }
-
-/* MAIN TREE*/
-let tree = new RedBlackTree();
-/* MAIN TREE*/
 
 // Function to create a new event element
 
@@ -362,18 +380,7 @@ let editBtn = document.getElementById("editBtn");
 let isEditMode = false;
 let currentEvent = null; // Stores the current event being edited
 
-function createEventElement(
-  name = "Event Name",
-  startTime = "00:00",
-  endTime = "00:00",
-  venue = "Location",
-  desc = "Event Description"
-) {
-  /* TREE ADDED*/
-  // tree.insert(name, startTime, endTime);
-  // tree.inOrderTraversal();
-  /* TREE ADDED*/
-
+function createEventElement(name, startTime, endTime, venue, desc) {
   let newEvent = document.createElement("div");
   let mainEvent = document.createElement("div");
   let deleteEvent = document.createElement("div");
@@ -384,41 +391,43 @@ function createEventElement(
   mainEvent.appendChild(newEvent);
   mainEvent.appendChild(deleteEvent);
 
+  
+
   // Set event details
   newEvent.innerHTML = `
-    <p class="eventName">${name}</p>
-    <div class="schedule">
-      <p class="startTime">${startTime}</p>
-      <p>-</p>
-      <p class="endTime"> ${endTime}</p>
-    </div>
-    <p class="venue">${venue}</p>
-    <p class="desc">${desc}</p>
-    `;
+      <p class="eventName">${name}</p>
+      <div class="schedule">
+        <p class="startTime">${startTime}</p>
+        <p>-</p>
+        <p class="endTime"> ${endTime}</p>
+      </div>
+      <p class="venue">${venue}</p>
+      <p class="desc">${desc}</p>
+      `;
 
   deleteEvent.innerHTML = `
-  <svg id="delete" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 14 16">
-    <defs>
-        <path d="M0 2.625V1.75C0 1.334.334 1 .75 1h3.5l.294-.584A.741.741 0 0 1 5.213 0h3.571a.75.75 0 0 1 .672.416L9.75 1h3.5c.416 0 .75.334.75.75v.875a.376.376 0 0 1-.375.375H.375A.376.376 0 0 1 0 2.625Zm13 1.75V14.5a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 1 14.5V4.375C1 4.169 1.169 4 1.375 4h11.25c.206 0 .375.169.375.375ZM4.5 6.5c0-.275-.225-.5-.5-.5s-.5.225-.5.5v7c0 .275.225.5.5.5s.5-.225.5-.5v-7Zm3 0c0-.275-.225-.5-.5-.5s-.5.225-.5.5v7c0 .275.225.5.5.5s.5-.225.5-.5v-7Zm3 0c0-.275-.225-.5-.5-.5s-.5.225-.5.5v7c0 .275.225.5.5.5s.5-.225.5-.5v-7Z" id="a"/>
-    </defs>
-    <use fill="#e90404" fill-rule="nonzero" xlink:href="#a"/>
-  </svg>
-  `;
+    <svg id="delete" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 14 16">
+      <defs>
+          <path d="M0 2.625V1.75C0 1.334.334 1 .75 1h3.5l.294-.584A.741.741 0 0 1 5.213 0h3.571a.75.75 0 0 1 .672.416L9.75 1h3.5c.416 0 .75.334.75.75v.875a.376.376 0 0 1-.375.375H.375A.376.376 0 0 1 0 2.625Zm13 1.75V14.5a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 1 14.5V4.375C1 4.169 1.169 4 1.375 4h11.25c.206 0 .375.169.375.375ZM4.5 6.5c0-.275-.225-.5-.5-.5s-.5.225-.5.5v7c0 .275.225.5.5.5s.5-.225.5-.5v-7Zm3 0c0-.275-.225-.5-.5-.5s-.5.225-.5.5v7c0 .275.225.5.5.5s.5-.225.5-.5v-7Zm3 0c0-.275-.225-.5-.5-.5s-.5.225-.5.5v7c0 .275.225.5.5.5s.5-.225.5-.5v-7Z" id="a"/>
+      </defs>
+      <use fill="#e90404" fill-rule="nonzero" xlink:href="#a"/>
+    </svg>
+    `;
 
   deleteEvent.addEventListener("click", () => {
     if (confirm("You want to delete the event?")) {
       // Get the event name from the DOM element to use as the identifier for deletion
-      const eventName =
-        deleteEvent.parentNode.querySelector(".eventName").innerHTML;
+      const startTime =
+        deleteEvent.parentNode.querySelector(".startTime").innerHTML;
 
       // Delete the node from the Red-Black Tree
-      tree.deleteNode(eventName);
+      eventTree.deleteNode(startTime);
 
       // Remove the event from the UI
       deleteEvent.parentNode.remove();
 
       // Optional: Verify the tree structure after deletion
-      tree.inOrderTraversal();
+      eventTree.inOrderTraversal();
     }
   });
 
@@ -427,8 +436,9 @@ function createEventElement(
     handleEventClick(newEvent);
   });
 
+  return mainEvent;
   // Append the mainEvent container to the events container
-  eventsContainer.appendChild(mainEvent);
+  //eventsContainer.appendChild(mainEvent);
 }
 
 // Close button functionality
@@ -452,7 +462,7 @@ function updateViewMode() {
 
     displayEndTimeText.style.display = "none";
     editEndInput.style.display = "inline";
-    editEndInput.value = displayEndTimeText.textContent;
+    editEndInput.value = displayEndTimeText.textContent.trim();
 
     displayVenueText.style.display = "none";
     editVenueInput.style.display = "inline";
@@ -461,6 +471,9 @@ function updateViewMode() {
     displayDescText.style.display = "none";
     editDescInput.style.display = "block";
     editDescInput.value = displayDescText.textContent;
+
+    console.log("Start Time Text:", displayStartTimeText.textContent);
+    console.log("End Time Text:", displayEndTimeText.textContent);
 
     editBtn.textContent = "Save Details";
   } else {
@@ -525,56 +538,104 @@ function handleEventClick(eventElement) {
   updateViewMode();
 }
 
+let inputPopUp = document.querySelector(".inputPopUp");
+let ClosepopUp = document.querySelector(".cancel");
+let inputForm = document.querySelector("form");
+
 // Event listener for the "Add Event" button
 addEventBtn.addEventListener("click", () => {
   // Create and add a new event with default values
-  let newEvent = createEventElement();
+  inputForm.reset();
+  inputPopUp.style.display = "flex";
+});
+
+ClosepopUp.addEventListener("click", () => {
+  inputForm.reset();
+  inputPopUp.style.display = "none";
+});
+
+inputForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const data = new FormData(inputForm);
+
+  const en = data.get("event");
+  const st = data.get("start");
+  const et = data.get("end");
+  const ve = data.get("venue");
+  const de = data.get("description");
+  
+  console.log(en, st, et, ve, de);
+
+  inputPopUp.style.display = "none";
+
+  let newDiv = createEventElement(en, st, et, ve, de);
+  let value = toNumber(newDiv.querySelector(".startTime").innerHTML);
+  // Get the container and all existing divs within it
+  //console.log(eventsContainer.childNodes.typeof());
+  let divs = eventsContainer.childNodes;
+
+  // Find the position to insert the new div in sorted order
+  let inserted = false;
+  for (let i = 0; i < divs.length; i++) {
+    let divTime = toNumber(divs[i].querySelector(".startTime").innerHTML);
+    if (value < divTime) {
+      eventsContainer.insertBefore(newDiv, divs[i]);
+      inserted = true;
+      break;
+    }
+  }
+
+  // If no larger element is found, append the new div at the end
+  if (!inserted) {
+    eventsContainer.appendChild(newDiv);
+  }
 
   // Initialize the Red-Black Tree for events if it doesn't already exist
   if (!window.eventTree) {
     window.eventTree = new RedBlackTree();
   }
 
-  // Extract event details from the newly created element
-  let eventName = "Event Name";
-  let startTime = "00:00";
-  let endTime = "00:00";
-
-  // Convert times to numeric values for insertion
-  const startNumeric = toNumber(startTime);
-  const endNumeric = toNumber(endTime);
+  const startNumeric = st;
+  const endNumeric = et;
 
   // Insert the event into the Red-Black Tree
-  window.eventTree.insert(
-    eventName.toLowerCase(),
-    startNumeric,
-    endNumeric,
-    newEvent
-  );
+  window.eventTree.insert(en.toLowerCase(), startNumeric, endNumeric, newDiv);
   window.eventTree.inOrderTraversal();
-  console.log("Event added:", eventName);
+  console.log("Event added:", en);
 });
 
 // Search functionality
 function searchEvents() {
-  let searchText = searchInput.value.toLowerCase();
-  let matchingNodes = window.eventTree.search(searchText);
+  let searchText = searchInput.value;
+  console.log(typeof searchText);
+  let resultNode = window.eventTree.search(searchText);
 
   // Hide all events initially
-  let events = eventsContainer.getElementsByClassName("mainEvent");
-  Array.from(events).forEach((event) => {
-    event.style.display = "none";
-  });
+  if (searchText !== "") {
+    let events = eventsContainer.getElementsByClassName("mainEvent");
+    Array.from(events).forEach((event) => {
+      event.style.display = "none";
+    });
+    if (
+      resultNode &&
+      resultNode !== window.eventTree.TNULL &&
+      resultNode.data
+    ) {
+      // Ensure resultNode.data exists before trying to modify its style
 
-  // Show the event if found
-  if (resultNode && resultNode !== window.eventTree.TNULL && resultNode.data) {
-    // Ensure resultNode.data exists before trying to modify its style
-    resultNode.data.style.display = "flex"; // `data` holds the event element
-    console.log(resultNode); // Add this to see the result structure
+      resultNode.data.style.display = "flex"; // `data` holds the event element
+      console.log(resultNode); // Add this to see the result structure
+    } else {
+      console.log("Event not found");
+      console.log(resultNode); // Add this to see the result structure
+    }
   } else {
-    console.log("Event not found");
-    console.log(resultNode); // Add this to see the result structure
+    let events = eventsContainer.getElementsByClassName("mainEvent");
+    Array.from(events).forEach((event) => {
+      event.style.display = "flex";
+    });
   }
+  // Show the event if found
 }
 
 // Event listener for search input
@@ -597,12 +658,12 @@ editBtn.addEventListener("click", () => {
     // Ensure Red-Black Tree is initialized and update the tree with new values
     if (window.eventTree && currentEvent) {
       // Convert times to a numeric format if needed by the Red-Black Tree
-      const newStartNumeric = toNumber(newStartTime);
-      const newEndNumeric = toNumber(newEndTime);
+      const newStartNumeric = newStartTime;
+      const newEndNumeric = newEndTime;
 
       // Call a custom 'modify' method in the Red-Black Tree
       window.eventTree.modify(
-        originalname,
+        originalStartTime,
         newName.toLowerCase(),
         newStartNumeric,
         newEndNumeric
@@ -638,7 +699,8 @@ editBtn.addEventListener("click", () => {
 });
 
 let sharebtn = document.getElementById("shareBtn");
-let deleteIcon = document.querySelectorAll(".deleteEvent");
+let deleteIcons = document.querySelectorAll(".deleteEvent");
+
 sharebtn.addEventListener("click", () => {
   var opt = {
     margin: 1,
@@ -648,7 +710,18 @@ sharebtn.addEventListener("click", () => {
     jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
   };
 
-  // New Promise-based usage:
-  deleteIcon.style.display = "none";
-  html2pdf().from(eventsContainer).set(opt).save();
+  // Hide all delete icons
+  deleteIcons.forEach((icon) => (icon.style.display = "none"));
+
+  // Delay to ensure icons are hidden before PDF generation
+  setTimeout(() => {
+    html2pdf()
+      .from(eventsContainer)
+      .set(opt)
+      .save()
+      .then(() => {
+        // Re-show all delete icons after PDF generation
+        deleteIcons.forEach((icon) => (icon.style.display = ""));
+      });
+  }, 2000); // Adjust the delay time if needed
 });
