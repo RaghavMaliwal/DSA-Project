@@ -323,6 +323,7 @@ class RedBlackTree {
 
       // Insert a new node with updated details
       this.insert(newName, newStart, newEnd, oldDiv);
+      eventTree.inOrderTraversal();
     } else {
       // Update only the start and end times if the name hasn't changed
       node.name = newName;
@@ -335,8 +336,10 @@ class RedBlackTree {
   // Print the tree (in-order traversal)
   inOrderHelper(node) {
     if (node !== this.TNULL) {
+      
       this.inOrderHelper(node.left);
       console.log(node);
+      node.data.querySelector(".event").style.border = "5px " + node.color + " solid"; // Add a space before "solid"
       if (node.right !== this.TNULL) {
         this.inOrderHelper(node.right);
       }
@@ -387,6 +390,8 @@ function createEventElement(name, startTime, endTime, venue, desc) {
 
   mainEvent.appendChild(newEvent);
   mainEvent.appendChild(deleteEvent);
+
+  
 
   // Set event details
   newEvent.innerHTML = `
@@ -558,7 +563,7 @@ inputForm.addEventListener("submit", (e) => {
   const et = data.get("end");
   const ve = data.get("venue");
   const de = data.get("description");
-
+  
   console.log(en, st, et, ve, de);
 
   inputPopUp.style.display = "none";
